@@ -1,0 +1,1569 @@
+library(leaflet)
+library(tidyverse)
+library(shiny)
+
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+  
+  "청년 친화 강소기업", 
+  
+  
+  # Application title
+  
+  
+  # Sidebar with a slider input for number of bins 
+  sidebarLayout(
+    sidebarPanel(
+      
+      selectInput(inputId="업종","업종:",
+                  choices = c("전체", "정보통신업","도매 및 소매업","전문, 과학 및 기술 서비스업","제조업","기타")
+      ),
+      selectInput(inputId="BEST", "BEST 선정 분야:",
+                  choices = c("전체","임금","일생활균형","고용안정","임금&일생활균형","임금&고용안정","일생활균형&고용안정","임금&일생활균형&고용안정")
+      ),
+      
+      
+    ),
+    
+    # Show a plot of the generated distribution
+    mainPanel(
+      tabsetPanel(
+        tabPanel("2021",leafletOutput("map1", height=700) , tableOutput("list21") ),
+        
+        tabPanel("2022",leafletOutput("map2", height=700) , tableOutput("list22") ),
+        
+        tabPanel("21-22 연속 선정 기업",leafletOutput("map3", height=700), tableOutput("list2")),
+        
+        tabPanel("일자리카페",leafletOutput("map4", height=700), tableOutput("list4")),        
+        
+        tabPanel("의류 대여",leafletOutput("map5", height=700), tableOutput("list5")),
+        
+      )
+    )
+  )
+)
+
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+  
+  
+  
+  sb21 <- read.csv('C:/Users/user-pc/Desktop/list21.csv')
+  sb22 <- read.csv('C:/Users/user-pc/Desktop/list22.csv')
+  sb212 <- read.csv('C:/Users/user-pc/Desktop/list212.csv')
+  sb222 <- read.csv('C:/Users/user-pc/Desktop/list222.csv')
+  sb2 <- read.csv('C:/Users/user-pc/Desktop/2122.csv')
+  sb23 <- read.csv('C:/Users/user-pc/Desktop/21222.csv')
+  sb4 <- read.csv('C:/Users/user-pc/Desktop/cafe.csv')
+  sb5 <- read.csv('C:/Users/user-pc/Desktop/clothes.csv')
+  sb42 <- read.csv('C:/Users/user-pc/Desktop/cafe2.csv')
+  sb52 <- read.csv('C:/Users/user-pc/Desktop/clothes2.csv')
+  dfsb21<-as.data.frame(sb21)
+  dfsb22<-as.data.frame(sb22)
+  a<-subset(sb21, 업종 == '정보통신업')
+  a1<-subset(sb21, 업종 == '정보통신업'& 임금 == 1 )
+  a2<-subset(sb21, 업종 == '정보통신업'& 일생활균형 == 1)
+  a3<-subset(sb21, 업종 == '정보통신업'& 고용안정 == 1)
+  a4<-subset(sb21, 업종 == '정보통신업'& 임금 == 1 & 일생활균형==1)
+  a5<-subset(sb21, 업종 == '정보통신업'& 임금 == 1 & 고용안정==1)
+  a6<-subset(sb21, 업종 == '정보통신업'& 일생활균형 == 1 & 고용안정==1)
+  a7<-subset(sb21, 업종 == '정보통신업'& 비고==3)
+  b<-subset(sb21, 업종 == '도매 및 소매업')
+  b1<-subset(sb21, 업종 == '도매 및 소매업'& 임금 == 1)
+  b2<-subset(sb21, 업종 == '도매 및 소매업'& 일생활균형 == 1)
+  b3<-subset(sb21, 업종 == '도매 및 소매업'& 고용안정 == 1)
+  b4<-subset(sb21, 업종 == '도매 및 소매업'& 임금 == 1 & 일생활균형==1)
+  b5<-subset(sb21, 업종 == '도매 및 소매업'& 임금 == 1 & 고용안정==1)
+  b6<-subset(sb21, 업종 == '도매 및 소매업'& 일생활균형 == 1 & 고용안정==1)
+  b7<-subset(sb21, 업종 == '도매 및 소매업'& 비고==3)
+  c<-subset(sb21, 업종 == '전문, 과학 및 기술 서비스업')
+  c1<-subset(sb21, 업종 == '전문, 과학 및 기술 서비스업'& 임금 == 1 )
+  c2<-subset(sb21, 업종 == '전문, 과학 및 기술 서비스업'& 일생활균형 == 1)
+  c3<-subset(sb21, 업종 == '전문, 과학 및 기술 서비스업'& 고용안정 == 1)
+  c4<-subset(sb21, 업종 == '전문, 과학 및 기술 서비스업'& 임금 == 1 & 일생활균형==1)
+  c5<-subset(sb21, 업종 == '전문, 과학 및 기술 서비스업'& 임금 == 1 & 고용안정==1)
+  c6<-subset(sb21, 업종 == '전문, 과학 및 기술 서비스업'& 일생활균형 == 1 & 고용안정==1)
+  c7<-subset(sb21, 업종 == '전문, 과학 및 기술 서비스업'& 비고==3)
+  d<-subset(sb21, 업종 == '제조업')
+  d1<-subset(sb21, 업종 == '제조업'& 임금 == 1 )
+  d2<-subset(sb21, 업종 == '제조업'& 일생활균형 == 1)
+  d3<-subset(sb21, 업종 == '제조업'& 고용안정 == 1)
+  d4<-subset(sb21, 업종 == '제조업'& 임금 == 1 & 일생활균형==1)
+  d5<-subset(sb21, 업종 == '제조업'& 임금 == 1 & 고용안정==1)
+  d6<-subset(sb21, 업종 == '제조업'& 일생활균형 == 1 & 고용안정==1)
+  d7<-subset(sb21, 업종 == '제조업'& 비고==3)
+  e<-subset(sb21, 업종 == '기타')
+  e1<-subset(sb21, 업종 == '기타'& 임금 == 1 )
+  e2<-subset(sb21, 업종 == '기타'& 일생활균형 == 1)
+  e3<-subset(sb21, 업종 == '기타'& 고용안정 == 1)
+  e4<-subset(sb21, 업종 == '기타'& 임금 == 1 & 일생활균형==1)
+  e5<-subset(sb21, 업종 == '기타'& 임금 == 1 & 고용안정==1)
+  e6<-subset(sb21, 업종 == '기타'& 일생활균형 == 1 & 고용안정==1)
+  e7<-subset(sb21, 업종 == '기타'& 비고==3)
+  f1<-subset(sb21,  임금 == 1)
+  f2<-subset(sb21, 일생활균형 == 1)
+  f3<-subset(sb21, 고용안정 == 1)
+  f4<-subset(sb21, 임금 == 1 & 일생활균형==1)
+  f5<-subset(sb21, 임금 == 1 & 고용안정==1)
+  f6<-subset(sb21, 일생활균형 == 1 & 고용안정==1)
+  f7<-subset(sb21, 비고==3)
+  aa<-subset(sb22, 업종 == '정보통신업')
+  a12<-subset(sb22, 업종 == '정보통신업'& 임금 == 1 )
+  a22<-subset(sb22, 업종 == '정보통신업'& 일생활균형 == 1)
+  a32<-subset(sb22, 업종 == '정보통신업'& 고용안정 == 1)
+  a42<-subset(sb22, 업종 == '정보통신업'& 임금 == 1 & 일생활균형==1)
+  a52<-subset(sb22, 업종 == '정보통신업'& 임금 == 1 & 고용안정==1)
+  a62<-subset(sb22, 업종 == '정보통신업'& 일생활균형 == 1 & 고용안정==1)
+  a72<-subset(sb22, 업종 == '정보통신업'& 비고==3)
+  bb<-subset(sb22, 업종 == '도매 및 소매업')
+  b12<-subset(sb22, 업종 == '도매 및 소매업'& 임금 == 1)
+  b22<-subset(sb22, 업종 == '도매 및 소매업'& 일생활균형 == 1)
+  b32<-subset(sb22, 업종 == '도매 및 소매업'& 고용안정 == 1)
+  b42<-subset(sb22, 업종 == '도매 및 소매업'& 임금 == 1 & 일생활균형==1)
+  b52<-subset(sb22, 업종 == '도매 및 소매업'& 임금 == 1 & 고용안정==1)
+  b62<-subset(sb22, 업종 == '도매 및 소매업'& 일생활균형 == 1 & 고용안정==1)
+  b72<-subset(sb22, 업종 == '도매 및 소매업'& 비고==3)
+  cc<-subset(sb22, 업종 == '전문, 과학 및 기술 서비스업')
+  c12<-subset(sb22, 업종 == '전문, 과학 및 기술 서비스업'& 임금 == 1 )
+  c22<-subset(sb22, 업종 == '전문, 과학 및 기술 서비스업'& 일생활균형 == 1)
+  c32<-subset(sb22, 업종 == '전문, 과학 및 기술 서비스업'& 고용안정 == 1)
+  c42<-subset(sb22, 업종 == '전문, 과학 및 기술 서비스업'& 임금 == 1 & 일생활균형==1)
+  c52<-subset(sb22, 업종 == '전문, 과학 및 기술 서비스업'& 임금 == 1 & 고용안정==1)
+  c62<-subset(sb22, 업종 == '전문, 과학 및 기술 서비스업'& 일생활균형 == 1 & 고용안정==1)
+  c72<-subset(sb22, 업종 == '전문, 과학 및 기술 서비스업'& 비고==3)
+  dd<-subset(sb22, 업종 == '제조업')
+  d12<-subset(sb22, 업종 == '제조업'& 임금 == 1 )
+  d22<-subset(sb22, 업종 == '제조업'& 일생활균형 == 1)
+  d32<-subset(sb22, 업종 == '제조업'& 고용안정 == 1)
+  d42<-subset(sb22, 업종 == '제조업'& 임금 == 1 & 일생활균형==1)
+  d52<-subset(sb22, 업종 == '제조업'& 임금 == 1 & 고용안정==1)
+  d62<-subset(sb22, 업종 == '제조업'& 일생활균형 == 1 & 고용안정==1)
+  d72<-subset(sb22, 업종 == '제조업'& 비고==3)
+  ee<-subset(sb22, 업종 == '기타')
+  e12<-subset(sb22, 업종 == '기타'& 임금 == 1 )
+  e22<-subset(sb22, 업종 == '기타'& 일생활균형 == 1)
+  e32<-subset(sb22, 업종 == '기타'& 고용안정 == 1)
+  e42<-subset(sb22, 업종 == '기타'& 임금 == 1 & 일생활균형==1)
+  e52<-subset(sb22, 업종 == '기타'& 임금 == 1 & 고용안정==1)
+  e62<-subset(sb22, 업종 == '기타'& 일생활균형 == 1 & 고용안정==1)
+  e72<-subset(sb22, 업종 == '기타'& 비고==3)
+  f12<-subset(sb22,  임금 == 1)
+  f22<-subset(sb22, 일생활균형 == 1)
+  f32<-subset(sb22, 고용안정 == 1)
+  f42<-subset(sb22, 임금 == 1 & 일생활균형==1)
+  f52<-subset(sb22, 임금 == 1 & 고용안정==1)
+  f62<-subset(sb22, 일생활균형 == 1 & 고용안정==1)
+  f72<-subset(sb22, 비고==3)
+  
+  
+  
+  output$map1 <- renderLeaflet({
+    
+    
+    #정보통신업
+    if(input$업종=="정보통신업"&input$BEST=="임금"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = a1,lng=a1$경도, lat=a1$위도, popup=paste0("사업장명: ", a1$사업장명, "<br/>소재지: ", a1$소재지, "<br/>기업규모: ", a1$기업규모))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = a2,lng=a2$경도, lat=a2$위도, popup=paste0("사업장명: ", a2$사업장명, "<br/>소재지: ", a2$소재지, "<br/>기업규모: ", a2$기업규모))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = a3,lng=a3$경도, lat=a3$위도, popup=paste0("사업장명: ", a3$사업장명, "<br/>소재지: ", a3$소재지, "<br/>기업규모: ", a3$기업규모))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = a4,lng=a4$경도, lat=a4$위도, popup=paste0("사업장명: ", a4$사업장명, "<br/>소재지: ", a4$소재지, "<br/>기업규모: ", a4$기업규모))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = a5,lng=a5$경도, lat=a5$위도, popup=paste0("사업장명: ", a5$사업장명, "<br/>소재지: ", a5$소재지, "<br/>기업규모: ", a5$기업규모))   
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = a6,lng=a6$경도, lat=a6$위도, popup=paste0("사업장명: ", a6$사업장명, "<br/>소재지: ", a6$소재지, "<br/>기업규모: ", a6$기업규모))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = a7,lng=a7$경도, lat=a7$위도, popup=paste0("사업장명: ", a7$사업장명, "<br/>소재지: ", a7$소재지, "<br/>기업규모: ", a7$기업규모))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="전체"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = a,lng=a$경도, lat=a$위도, popup=paste0("사업장명: ", a$사업장명, "<br/>소재지: ", a$소재지, "<br/>기업규모: ", a$기업규모))   
+      
+      
+      #도매 및 소매업
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = b1,lng=b1$경도, lat=b1$위도, popup=paste0("사업장명: ", b1$사업장명, "<br/>소재지: ", b1$소재지, "<br/>기업규모: ", b1$기업규모))
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = b2,lng=b2$경도, lat=b2$위도, popup=paste0("사업장명: ", b2$사업장명, "<br/>소재지: ", b2$소재지, "<br/>기업규모: ", b2$기업규모))
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = b3,lng=b3$경도, lat=b3$위도, popup=paste0("사업장명: ", b3$사업장명, "<br/>소재지: ", b3$소재지, "<br/>기업규모: ", b3$기업규모))
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = b4,lng=b4$경도, lat=b4$위도, popup=paste0("사업장명: ", b4$사업장명, "<br/>소재지: ", b4$소재지, "<br/>기업규모: ", b4$기업규모))
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = b5,lng=b5$경도, lat=b5$위도, popup=paste0("사업장명: ", b5$사업장명, "<br/>소재지: ", b5$소재지, "<br/>기업규모: ", b5$기업규모))   
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = b6,lng=b6$경도, lat=b6$위도, popup=paste0("사업장명: ", b6$사업장명, "<br/>소재지: ", b6$소재지, "<br/>기업규모: ", b6$기업규모))
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = b7,lng=b7$경도, lat=b7$위도, popup=paste0("사업장명: ", b7$사업장명, "<br/>소재지: ", b7$소재지, "<br/>기업규모: ", b7$기업규모))
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="전체"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = b,lng=b$경도, lat=b$위도, popup=paste0("사업장명: ", b$사업장명, "<br/>소재지: ", b$소재지, "<br/>기업규모: ", b$기업규모)) 
+      
+      
+      #전문, 과학 및 기술 서비스업 
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = c1,lng=c1$경도, lat=c1$위도, popup=paste0("사업장명: ", c1$사업장명, "<br/>소재지: ", c1$소재지, "<br/>기업규모: ", c1$기업규모))
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = c2,lng=c2$경도, lat=c2$위도, popup=paste0("사업장명: ", c2$사업장명, "<br/>소재지: ", c2$소재지, "<br/>기업규모: ", c2$기업규모))
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = c3,lng=c3$경도, lat=c3$위도, popup=paste0("사업장명: ", c3$사업장명, "<br/>소재지: ", c3$소재지, "<br/>기업규모: ", c3$기업규모))
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = c4,lng=c4$경도, lat=c4$위도, popup=paste0("사업장명: ", c4$사업장명, "<br/>소재지: ", c4$소재지, "<br/>기업규모: ", c4$기업규모))
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = c5,lng=c5$경도, lat=c5$위도, popup=paste0("사업장명: ", c5$사업장명, "<br/>소재지: ", c5$소재지, "<br/>기업규모: ", c5$기업규모))   
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = c6,lng=c6$경도, lat=c6$위도, popup=paste0("사업장명: ", c6$사업장명, "<br/>소재지: ", c6$소재지, "<br/>기업규모: ", c6$기업규모))
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = c7,lng=c7$경도, lat=c7$위도, popup=paste0("사업장명: ", c7$사업장명, "<br/>소재지: ", c7$소재지, "<br/>기업규모: ", c7$기업규모)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="전체"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = c,lng=c$경도, lat=c$위도, popup=paste0("사업장명: ", c$사업장명, "<br/>소재지: ", c$소재지, "<br/>기업규모: ", c$기업규모))  
+      
+      
+      #제조업   
+    }else if(input$업종=="제조업"&input$BEST=="임금"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = d1,lng=d1$경도, lat=d1$위도, popup=paste0("사업장명: ", d1$사업장명, "<br/>소재지: ", d1$소재지, "<br/>기업규모: ", d1$기업규모))
+      
+    }else if(input$업종=="제조업"&input$BEST=="일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = d2,lng=d2$경도, lat=d2$위도, popup=paste0("사업장명: ", d2$사업장명, "<br/>소재지: ", d2$소재지, "<br/>기업규모: ", d2$기업규모))
+      
+    }else if(input$업종=="제조업"&input$BEST=="고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = d3,lng=d3$경도, lat=d3$위도, popup=paste0("사업장명: ", d3$사업장명, "<br/>소재지: ", d3$소재지, "<br/>기업규모: ", d3$기업규모))
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = d4,lng=d4$경도, lat=d4$위도, popup=paste0("사업장명: ", d4$사업장명, "<br/>소재지: ", d4$소재지, "<br/>기업규모: ", d4$기업규모))
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = d5,lng=d5$경도, lat=d5$위도, popup=paste0("사업장명: ", d5$사업장명, "<br/>소재지: ", d5$소재지, "<br/>기업규모: ", d5$기업규모))   
+      
+    }else if(input$업종=="제조업"&input$BEST=="일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = d6,lng=d6$경도, lat=d6$위도, popup=paste0("사업장명: ", d6$사업장명, "<br/>소재지: ", d6$소재지, "<br/>기업규모: ", d6$기업규모))
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = d7,lng=d7$경도, lat=d7$위도, popup=paste0("사업장명: ", d7$사업장명, "<br/>소재지: ", d7$소재지, "<br/>기업규모: ", d7$기업규모))  
+      
+    }else if(input$업종=="제조업"&input$BEST=="전체"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = d,lng=d$경도, lat=d$위도, popup=paste0("사업장명: ", d$사업장명, "<br/>소재지: ", d$소재지, "<br/>기업규모: ", d$기업규모))  
+      
+      
+      #기타    
+    }else if(input$업종=="기타"&input$BEST=="임금"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = e1,lng=e1$경도, lat=e1$위도, popup=paste0("사업장명: ", e1$사업장명, "<br/>소재지: ", e1$소재지, "<br/>기업규모: ", e1$기업규모))
+      
+    }else if(input$업종=="기타"&input$BEST=="일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = e2,lng=e2$경도, lat=e2$위도, popup=paste0("사업장명: ", e2$사업장명, "<br/>소재지: ", e2$소재지, "<br/>기업규모: ", e2$기업규모))
+      
+    }else if(input$업종=="기타"&input$BEST=="고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = e3,lng=e3$경도, lat=e3$위도, popup=paste0("사업장명: ", e3$사업장명, "<br/>소재지: ", e3$소재지, "<br/>기업규모: ", e3$기업규모))
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = e4,lng=e4$경도, lat=e4$위도, popup=paste0("사업장명: ", e4$사업장명, "<br/>소재지: ", e4$소재지, "<br/>기업규모: ", e4$기업규모))
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = e5,lng=e5$경도, lat=e5$위도, popup=paste0("사업장명: ", e5$사업장명, "<br/>소재지: ", e5$소재지, "<br/>기업규모: ", e5$기업규모))   
+      
+    }else if(input$업종=="기타"&input$BEST=="일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = e6,lng=e6$경도, lat=e6$위도, popup=paste0("사업장명: ", e6$사업장명, "<br/>소재지: ", e6$소재지, "<br/>기업규모: ", e6$기업규모))
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = e7,lng=e7$경도, lat=e7$위도, popup=paste0("사업장명: ", e7$사업장명, "<br/>소재지: ", e7$소재지, "<br/>기업규모: ", e7$기업규모))
+      
+    }else if(input$업종=="기타"&input$BEST=="전체"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = e,lng=e$경도, lat=e$위도, popup=paste0("사업장명: ", e$사업장명, "<br/>소재지: ", e$소재지, "<br/>기업규모: ", e$기업규모))
+      
+    }else if(input$업종=="전체"&input$BEST=="전체"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = sb21,lng=sb21$경도, lat=sb21$위도, popup=paste0("사업장명: ", sb21$사업장명, "<br/>소재지: ", sb21$소재지, "<br/>기업규모: ", sb21$기업규모))
+      
+      #전체
+    }else if(input$업종=="전체"&input$BEST=="임금"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = f1,lng=f1$경도, lat=f1$위도, popup=paste0("사업장명: ", f1$사업장명, "<br/>소재지: ", f1$소재지, "<br/>기업규모: ", f1$기업규모))
+      
+    }else if(input$업종=="전체"&input$BEST=="일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = f2,lng=f2$경도, lat=f2$위도, popup=paste0("사업장명: ", f2$사업장명, "<br/>소재지: ", f2$소재지, "<br/>기업규모: ", f2$기업규모))
+      
+    }else if(input$업종=="전체"&input$BEST=="고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = f3,lng=f3$경도, lat=f3$위도, popup=paste0("사업장명: ", f3$사업장명, "<br/>소재지: ", f3$소재지, "<br/>기업규모: ", f3$기업규모))
+      
+    }else if(input$업종=="전체"&input$BEST=="임금&일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = f4,lng=f4$경도, lat=f4$위도, popup=paste0("사업장명: ", f4$사업장명, "<br/>소재지: ", f4$소재지, "<br/>기업규모: ", f4$기업규모))
+      
+    }else if(input$업종=="전체"&input$BEST=="임금&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = f5,lng=f5$경도, lat=f5$위도, popup=paste0("사업장명: ", f5$사업장명, "<br/>소재지: ", f5$소재지, "<br/>기업규모: ", f5$기업규모))   
+      
+    }else if(input$업종=="전체"&input$BEST=="일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = f6,lng=f6$경도, lat=f6$위도, popup=paste0("사업장명: ", f6$사업장명, "<br/>소재지: ", f6$소재지, "<br/>기업규모: ", f6$기업규모))
+      
+    }else if(input$업종=="전체"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = f7,lng=f7$경도, lat=f7$위도, popup=paste0("사업장명: ", f7$사업장명, "<br/>소재지: ", f7$소재지, "<br/>기업규모: ", f7$기업규모))
+      
+      
+    }
+    
+  })
+  
+  
+  
+  output$map2 <- renderLeaflet({
+    
+    
+    #정보통신업
+    if(input$업종=="정보통신업"&input$BEST=="임금"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = a12,lng=a12$경도, lat=a12$위도, popup=paste0("사업장명: ", a12$사업장명, "<br/>소재지: ", a12$소재지, "<br/>기업규모: ", a12$기업규모))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = a22,lng=a22$경도, lat=a22$위도, popup=paste0("사업장명: ", a22$사업장명, "<br/>소재지: ", a22$소재지, "<br/>기업규모: ", a22$기업규모))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = a32,lng=a32$경도, lat=a32$위도, popup=paste0("사업장명: ", a32$사업장명, "<br/>소재지: ", a32$소재지, "<br/>기업규모: ", a32$기업규모))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = a42,lng=a42$경도, lat=a42$위도, popup=paste0("사업장명: ", a42$사업장명, "<br/>소재지: ", a42$소재지, "<br/>기업규모: ", a42$기업규모))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = a52,lng=a52$경도, lat=a52$위도, popup=paste0("사업장명: ", a52$사업장명, "<br/>소재지: ", a52$소재지, "<br/>기업규모: ", a52$기업규모))   
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = a62,lng=a62$경도, lat=a62$위도, popup=paste0("사업장명: ", a62$사업장명, "<br/>소재지: ", a62$소재지, "<br/>기업규모: ", a62$기업규모))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = a72,lng=a72$경도, lat=a72$위도, popup=paste0("사업장명: ", a72$사업장명, "<br/>소재지: ", a72$소재지, "<br/>기업규모: ", a72$기업규모))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="전체"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = aa,lng=aa$경도, lat=aa$위도, popup=paste0("사업장명: ", aa$사업장명, "<br/>소재지: ", aa$소재지, "<br/>기업규모: ", aa$기업규모))   
+      
+      
+      #도매 및 소매업
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = b12,lng=b12$경도, lat=b12$위도, popup=paste0("사업장명: ", b12$사업장명, "<br/>소재지: ", b12$소재지, "<br/>기업규모: ", b12$기업규모))
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = b22,lng=b22$경도, lat=b22$위도, popup=paste0("사업장명: ", b22$사업장명, "<br/>소재지: ", b22$소재지, "<br/>기업규모: ", b22$기업규모))
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = b32,lng=b32$경도, lat=b32$위도, popup=paste0("사업장명: ", b32$사업장명, "<br/>소재지: ", b32$소재지, "<br/>기업규모: ", b32$기업규모))
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = b42,lng=b42$경도, lat=b42$위도, popup=paste0("사업장명: ", b42$사업장명, "<br/>소재지: ", b42$소재지, "<br/>기업규모: ", b42$기업규모))
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = b52,lng=b52$경도, lat=b52$위도, popup=paste0("사업장명: ", b52$사업장명, "<br/>소재지: ", b52$소재지, "<br/>기업규모: ", b52$기업규모))   
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = b62,lng=b62$경도, lat=b62$위도, popup=paste0("사업장명: ", b62$사업장명, "<br/>소재지: ", b62$소재지, "<br/>기업규모: ", b62$기업규모))
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = b72,lng=b72$경도, lat=b72$위도, popup=paste0("사업장명: ", b72$사업장명, "<br/>소재지: ", b72$소재지, "<br/>기업규모: ", b72$기업규모))
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="전체"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = bb,lng=bb$경도, lat=bb$위도, popup=paste0("사업장명: ", bb$사업장명, "<br/>소재지: ", bb$소재지, "<br/>기업규모: ", bb$기업규모)) 
+      
+      
+      #전문, 과학 및 기술 서비스업 
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = c12,lng=c12$경도, lat=c12$위도, popup=paste0("사업장명: ", c12$사업장명, "<br/>소재지: ", c12$소재지, "<br/>기업규모: ", c12$기업규모))
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = c22,lng=c22$경도, lat=c22$위도, popup=paste0("사업장명: ", c22$사업장명, "<br/>소재지: ", c22$소재지, "<br/>기업규모: ", c22$기업규모))
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = c32,lng=c32$경도, lat=c32$위도, popup=paste0("사업장명: ", c32$사업장명, "<br/>소재지: ", c32$소재지, "<br/>기업규모: ", c32$기업규모))
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = c42,lng=c42$경도, lat=c42$위도, popup=paste0("사업장명: ", c42$사업장명, "<br/>소재지: ", c42$소재지, "<br/>기업규모: ", c42$기업규모))
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = c52,lng=c52$경도, lat=c52$위도, popup=paste0("사업장명: ", c52$사업장명, "<br/>소재지: ", c52$소재지, "<br/>기업규모: ", c52$기업규모))   
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = c62,lng=c62$경도, lat=c62$위도, popup=paste0("사업장명: ", c62$사업장명, "<br/>소재지: ", c62$소재지, "<br/>기업규모: ", c62$기업규모))
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = c72,lng=c72$경도, lat=c72$위도, popup=paste0("사업장명: ", c72$사업장명, "<br/>소재지: ", c72$소재지, "<br/>기업규모: ", c72$기업규모)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="전체"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = cc,lng=cc$경도, lat=cc$위도, popup=paste0("사업장명: ", cc$사업장명, "<br/>소재지: ", cc$소재지, "<br/>기업규모: ", cc$기업규모))  
+      
+      
+      #제조업   
+    }else if(input$업종=="제조업"&input$BEST=="임금"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = d12,lng=d12$경도, lat=d12$위도, popup=paste0("사업장명: ", d12$사업장명, "<br/>소재지: ", d12$소재지, "<br/>기업규모: ", d12$기업규모))
+      
+    }else if(input$업종=="제조업"&input$BEST=="일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = d22,lng=d22$경도, lat=d22$위도, popup=paste0("사업장명: ", d22$사업장명, "<br/>소재지: ", d22$소재지, "<br/>기업규모: ", d22$기업규모))
+      
+    }else if(input$업종=="제조업"&input$BEST=="고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = d32,lng=d32$경도, lat=d32$위도, popup=paste0("사업장명: ", d32$사업장명, "<br/>소재지: ", d32$소재지, "<br/>기업규모: ", d32$기업규모))
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = d42,lng=d42$경도, lat=d42$위도, popup=paste0("사업장명: ", d42$사업장명, "<br/>소재지: ", d42$소재지, "<br/>기업규모: ", d42$기업규모))
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = d52,lng=d52$경도, lat=d52$위도, popup=paste0("사업장명: ", d52$사업장명, "<br/>소재지: ", d52$소재지, "<br/>기업규모: ", d52$기업규모))   
+      
+    }else if(input$업종=="제조업"&input$BEST=="일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = d62,lng=d62$경도, lat=d62$위도, popup=paste0("사업장명: ", d62$사업장명, "<br/>소재지: ", d62$소재지, "<br/>기업규모: ", d62$기업규모))
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = d72,lng=d72$경도, lat=d72$위도, popup=paste0("사업장명: ", d72$사업장명, "<br/>소재지: ", d72$소재지, "<br/>기업규모: ", d72$기업규모))  
+      
+    }else if(input$업종=="제조업"&input$BEST=="전체"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = dd,lng=dd$경도, lat=dd$위도, popup=paste0("사업장명: ", dd$사업장명, "<br/>소재지: ", dd$소재지, "<br/>기업규모: ", dd$기업규모))  
+      
+      
+      #기타    
+    }else if(input$업종=="기타"&input$BEST=="임금"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = e12,lng=e12$경도, lat=e12$위도, popup=paste0("사업장명: ", e12$사업장명, "<br/>소재지: ", e12$소재지, "<br/>기업규모: ", e12$기업규모))
+      
+    }else if(input$업종=="기타"&input$BEST=="일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = e22,lng=e22$경도, lat=e22$위도, popup=paste0("사업장명: ", e22$사업장명, "<br/>소재지: ", e22$소재지, "<br/>기업규모: ", e22$기업규모))
+      
+    }else if(input$업종=="기타"&input$BEST=="고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = e32,lng=e32$경도, lat=e32$위도, popup=paste0("사업장명: ", e32$사업장명, "<br/>소재지: ", e32$소재지, "<br/>기업규모: ", e32$기업규모))
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = e42,lng=e42$경도, lat=e42$위도, popup=paste0("사업장명: ", e42$사업장명, "<br/>소재지: ", e42$소재지, "<br/>기업규모: ", e42$기업규모))
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = e52,lng=e52$경도, lat=e52$위도, popup=paste0("사업장명: ", e52$사업장명, "<br/>소재지: ", e52$소재지, "<br/>기업규모: ", e52$기업규모))   
+      
+    }else if(input$업종=="기타"&input$BEST=="일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = e62,lng=e62$경도, lat=e62$위도, popup=paste0("사업장명: ", e62$사업장명, "<br/>소재지: ", e62$소재지, "<br/>기업규모: ", e62$기업규모))
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = e72,lng=e72$경도, lat=e72$위도, popup=paste0("사업장명: ", e72$사업장명, "<br/>소재지: ", e72$소재지, "<br/>기업규모: ", e72$기업규모))
+      
+    }else if(input$업종=="기타"&input$BEST=="전체"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = ee,lng=ee$경도, lat=ee$위도, popup=paste0("사업장명: ", ee$사업장명, "<br/>소재지: ", ee$소재지, "<br/>기업규모: ", ee$기업규모))
+      
+    }else if(input$업종=="전체"&input$BEST=="전체"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = sb22,lng=sb22$경도, lat=sb22$위도, popup=paste0("사업장명: ", sb22$사업장명, "<br/>소재지: ", sb22$소재지, "<br/>기업규모: ", sb22$기업규모))
+      
+      #전체
+    }else if(input$업종=="전체"&input$BEST=="임금"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = f12,lng=f12$경도, lat=f12$위도, popup=paste0("사업장명: ", f12$사업장명, "<br/>소재지: ", f12$소재지, "<br/>기업규모: ", f12$기업규모))
+      
+    }else if(input$업종=="전체"&input$BEST=="일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = f22,lng=f22$경도, lat=f22$위도, popup=paste0("사업장명: ", f22$사업장명, "<br/>소재지: ", f22$소재지, "<br/>기업규모: ", f22$기업규모))
+      
+    }else if(input$업종=="전체"&input$BEST=="고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = f32,lng=f32$경도, lat=f32$위도, popup=paste0("사업장명: ", f32$사업장명, "<br/>소재지: ", f32$소재지, "<br/>기업규모: ", f32$기업규모))
+      
+    }else if(input$업종=="전체"&input$BEST=="임금&일생활균형"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = f42,lng=f42$경도, lat=f42$위도, popup=paste0("사업장명: ", f42$사업장명, "<br/>소재지: ", f42$소재지, "<br/>기업규모: ", f42$기업규모))
+      
+    }else if(input$업종=="전체"&input$BEST=="임금&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = f52,lng=f52$경도, lat=f52$위도, popup=paste0("사업장명: ", f52$사업장명, "<br/>소재지: ", f52$소재지, "<br/>기업규모: ", f52$기업규모))   
+      
+    }else if(input$업종=="전체"&input$BEST=="일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = f62,lng=f62$경도, lat=f62$위도, popup=paste0("사업장명: ", f62$사업장명, "<br/>소재지: ", f62$소재지, "<br/>기업규모: ", f62$기업규모))
+      
+    }else if(input$업종=="전체"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet() %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addAwesomeMarkers(data = f72,lng=f72$경도, lat=f72$위도, popup=paste0("사업장명: ", f72$사업장명, "<br/>소재지: ", f72$소재지, "<br/>기업규모: ", f72$기업규모))
+      
+      
+    }
+    
+  })
+  
+  output$map3 <- renderLeaflet({
+    
+    
+    #정보통신업
+    if(input$업종=="정보통신업"&input$BEST=="임금"){
+      leaflet(subset(sb2, 업종22 == '정보통신업'& 임금22 == 1 & 임금21==1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="일생활균형"){
+      leaflet(subset(sb2, 업종22 == '정보통신업'& 일생활균형22 == 1 & 일생활균형21== 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="고용안정"){
+      leaflet(subset(sb2, 업종22 == '정보통신업'& 고용안정22 == 1 & 고용안정21== 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&일생활균형"){
+      leaflet(subset(sb2, 업종22 == '정보통신업'& 임금22 == 1 & 일생활균형22==1 & 임금21 == 1 & 일생활균형21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&고용안정"){
+      leaflet(subset(sb2, 업종22 == '정보통신업'& 임금22 == 1 & 고용안정22==1 & 임금21 == 1 & 고용안정21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)   
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="일생활균형&고용안정"){
+      leaflet(subset(sb2, 업종22 == '정보통신업'& 일생활균형22 == 1 & 고용안정22==1 & 일생활균형21 == 1 & 고용안정21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet(subset(sb2, 업종22 == '정보통신업'& 랭킹 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="전체"){
+      leaflet(subset(sb2, 업종22 == '정보통신업')) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)   
+      
+      
+      #도매 및 소매업
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금"){
+      leaflet(subset(sb2, 업종22 == '도매 및 소매업'& 임금22 == 1 & 임금21==1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="일생활균형"){
+      leaflet(subset(sb2, 업종22 == '도매 및 소매업'& 일생활균형22 == 1 & 일생활균형21== 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="고용안정"){
+      leaflet(subset(sb2, 업종22 == '도매 및 소매업'& 고용안정22 == 1 & 고용안정21== 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&일생활균형"){
+      leaflet(subset(sb2, 업종22 == '도매 및 소매업'& 임금22 == 1 & 일생활균형22==1 & 임금21 == 1 & 일생활균형21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&고용안정"){
+      leaflet(subset(sb2, 업종22 == '도매 및 소매업'& 임금22 == 1 & 고용안정22==1 & 임금21 == 1 & 고용안정21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)   
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="일생활균형&고용안정"){
+      leaflet(subset(sb2, 업종22 == '도매 및 소매업'& 일생활균형22 == 1 & 고용안정22==1 & 일생활균형21 == 1 & 고용안정21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet(subset(sb2, 업종22 == '도매 및 소매업'& 랭킹 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="전체"){
+      leaflet(subset(sb2, 업종22 == '도매 및 소매업')) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22) 
+      
+      
+      #전문, 과학 및 기술 서비스업 
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금"){
+      leaflet(subset(sb2, 업종22 == '전문, 과학 및 기술 서비스업'& 임금22 == 1 & 임금21==1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="일생활균형"){
+      leaflet(subset(sb2, 업종22 == '전문, 과학 및 기술 서비스업'& 일생활균형22 == 1 & 일생활균형21== 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="고용안정"){
+      leaflet(subset(sb2, 업종22 == '전문, 과학 및 기술 서비스업'& 고용안정22 == 1 & 고용안정21== 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&일생활균형"){
+      leaflet(subset(sb2, 업종22 == '전문, 과학 및 기술 서비스업'& 임금22 == 1 & 일생활균형22==1 & 임금21 == 1 & 일생활균형21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&고용안정"){
+      leaflet(subset(sb2, 업종22 == '전문, 과학 및 기술 서비스업'& 임금22 == 1 & 고용안정22==1 & 임금21 == 1 & 고용안정21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)   
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="일생활균형&고용안정"){
+      leaflet(subset(sb2, 업종22 == '전문, 과학 및 기술 서비스업'& 일생활균형22 == 1 & 고용안정22==1 & 일생활균형21 == 1 & 고용안정21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet(subset(sb2, 업종22 == '전문, 과학 및 기술 서비스업'& 랭킹 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="전체"){
+      leaflet(subset(sb2, 업종22 == '전문, 과학 및 기술 서비스업')) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)  
+      
+      
+      #제조업   
+    }else if(input$업종=="제조업"&input$BEST=="임금"){
+      leaflet(subset(sb2, 업종22 == '제조업'& 임금22 == 1 & 임금21==1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="제조업"&input$BEST=="일생활균형"){
+      leaflet(subset(sb2, 업종22 == '제조업'& 일생활균형22 == 1 & 일생활균형21== 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="제조업"&input$BEST=="고용안정"){
+      leaflet(subset(sb2, 업종22 == '제조업'& 고용안정22 == 1 & 고용안정21== 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&일생활균형"){
+      leaflet(subset(sb2, 업종22 == '제조업'& 임금22 == 1 & 일생활균형22==1 & 임금21 == 1 & 일생활균형21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&고용안정"){
+      leaflet(subset(sb2, 업종22 == '제조업'& 임금22 == 1 & 고용안정22==1 & 임금21 == 1 & 고용안정21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)   
+      
+    }else if(input$업종=="제조업"&input$BEST=="일생활균형&고용안정"){
+      leaflet(subset(sb2, 업종22 == '제조업'& 일생활균형22 == 1 & 고용안정22==1 & 일생활균형21 == 1 & 고용안정21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet(subset(sb2, 업종22 == '제조업'& 랭킹 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="제조업"&input$BEST=="전체"){
+      leaflet(subset(sb2, 업종22 == '제조업')) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)  
+      
+      
+      #기타    
+    }else if(input$업종=="기타"&input$BEST=="임금"){
+      leaflet(subset(sb2, 업종22 == '기타'& 임금22 == 1 & 임금21==1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="기타"&input$BEST=="일생활균형"){
+      leaflet(subset(sb2, 업종22 == '기타'& 일생활균형22 == 1 & 일생활균형21== 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="기타"&input$BEST=="고용안정"){
+      leaflet(subset(sb2, 업종22 == '기타'& 고용안정22 == 1 & 고용안정21== 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&일생활균형"){
+      leaflet(subset(sb2, 업종22 == '기타'& 임금22 == 1 & 일생활균형22==1 & 임금21 == 1 & 일생활균형21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&고용안정"){
+      leaflet(subset(sb2, 업종22 == '기타'& 임금22 == 1 & 고용안정22==1 & 임금21 == 1 & 고용안정21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)   
+      
+    }else if(input$업종=="기타"&input$BEST=="일생활균형&고용안정"){
+      leaflet(subset(sb2, 업종22 == '기타'& 일생활균형22 == 1 & 고용안정22==1 & 일생활균형21 == 1 & 고용안정21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet(subset(sb2, 업종22 == '기타'& 랭킹 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="기타"&input$BEST=="전체"){
+      leaflet(subset(sb2, 업종22 == '기타')) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="전체"&input$BEST=="전체"){
+      leaflet(sb2) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+      #전체
+    }else if(input$업종=="전체"&input$BEST=="임금"){
+      leaflet(subset(sb2,  임금22 == 1 & 임금21==1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="전체"&input$BEST=="일생활균형"){
+      leaflet(subset(sb2,  일생활균형22 == 1 & 일생활균형21== 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="전체"&input$BEST=="고용안정"){
+      leaflet(subset(sb2,  고용안정22 == 1 & 고용안정21== 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="전체"&input$BEST=="임금&일생활균형"){
+      leaflet(subset(sb2,  임금22 == 1 & 일생활균형22==1 & 임금21 == 1 & 일생활균형21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="전체"&input$BEST=="임금&고용안정"){
+      leaflet(subset(sb2,  임금22 == 1 & 고용안정22==1 & 임금21 == 1 & 고용안정21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)   
+      
+    }else if(input$업종=="전체"&input$BEST=="일생활균형&고용안정"){
+      leaflet(subset(sb2,  일생활균형22 == 1 & 고용안정22==1 & 일생활균형21 == 1 & 고용안정21 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }else if(input$업종=="전체"&input$BEST=="임금&일생활균형&고용안정"){
+      leaflet(subset(sb2,  랭킹 == 1)) %>%
+        setView(lng=126.9784, lat=37.55, zoom=12) %>%
+        addTiles() %>%
+        addMarkers(lng=~경도, lat=~위도, label=~사업장명22)
+      
+    }
+    
+    
+  })
+  
+  
+  output$map4 <- renderLeaflet({
+    leaflet() %>%
+      setView(lng=126.98, lat=37.55, zoom=12) %>%
+      addTiles() %>%
+      addAwesomeMarkers(data = sb4,lng=sb4$경도, lat=sb4$위도, popup=paste0("카페명: ", sb4$카페명, "<br/>상세주소: ", sb4$상세주소, "<br/>이용시간: ", sb4$이용시간))
+  })
+  
+  output$map5 <- renderLeaflet({
+    leaflet() %>%
+      setView(lng=126.99, lat=37.52, zoom=13) %>%
+      addTiles() %>%
+      addAwesomeMarkers(data = sb5,lng=sb5$경도, lat=sb5$위도, popup=paste0("업체명: ", sb5$업체명, "<br/>주소: ", sb5$주소, "<br/>전화번호: ", sb5$전화번호))
+  })
+  
+  
+  output$list21 <- renderTable({
+    
+    
+    #정보통신업
+    if(input$업종=="정보통신업"&input$BEST=="임금"){
+      (subset(sb212, 업종 == '정보통신업'& 임금 == 1 ))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="일생활균형"){
+      (subset(sb212, 업종 == '정보통신업'& 일생활균형 == 1))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="고용안정"){
+      (subset(sb212, 업종 == '정보통신업'& 고용안정 == 1))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&일생활균형"){
+      (subset(sb212, 업종 == '정보통신업'& 임금 == 1 & 일생활균형==1)) 
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&고용안정"){
+      (subset(sb212, 업종 == '정보통신업'& 임금 == 1 & 고용안정==1))   
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb212, 업종 == '정보통신업'& 일생활균형 == 1 & 고용안정==1)) 
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb212, 업종 == '정보통신업'& 비고==3)) 
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="전체"){
+      (subset(sb212, 업종 == '정보통신업'))  
+      
+      
+      #도매 및 소매업
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금"){
+      (subset(sb212, 업종 == '도매 및 소매업'& 임금 == 1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="일생활균형"){
+      (subset(sb212, 업종 == '도매 및 소매업'& 일생활균형 == 1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="고용안정"){
+      (subset(sb212, 업종 == '도매 및 소매업'& 고용안정 == 1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&일생활균형"){
+      (subset(sb212, 업종 == '도매 및 소매업'& 임금 == 1 & 일생활균형==1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&고용안정"){
+      (subset(sb212, 업종 == '도매 및 소매업'& 임금 == 1 & 고용안정==1))    
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb212, 업종 == '도매 및 소매업'& 일생활균형 == 1 & 고용안정==1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb212, 업종 == '도매 및 소매업'& 비고==3)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="전체"){
+      (subset(sb212, 업종 == '도매 및 소매업')) 
+      
+      
+      #전문, 과학 및 기술 서비스업 
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금"){
+      (subset(sb212, 업종 == '전문, 과학 및 기술 서비스업'& 임금 == 1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="일생활균형"){
+      (subset(sb212, 업종 == '전문, 과학 및 기술 서비스업'& 일생활균형 == 1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="고용안정"){
+      (subset(sb212, 업종 == '전문, 과학 및 기술 서비스업'& 고용안정 == 1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&일생활균형"){
+      (subset(sb212, 업종 == '전문, 과학 및 기술 서비스업'& 임금 == 1 & 일생활균형==1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&고용안정"){
+      (subset(sb212, 업종 == '전문, 과학 및 기술 서비스업'& 임금 == 1 & 고용안정==1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb212, 업종 == '전문, 과학 및 기술 서비스업'& 일생활균형 == 1 & 고용안정==1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb212, 업종 == '전문, 과학 및 기술 서비스업'& 비고==3))  
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="전체"){
+      (subset(sb212, 업종 == '전문, 과학 및 기술 서비스업'))   
+      
+      
+      #제조업   
+    }else if(input$업종=="제조업"&input$BEST=="임금"){
+      (subset(sb212, 업종 == '제조업'& 임금 == 1))
+      
+    }else if(input$업종=="제조업"&input$BEST=="일생활균형"){
+      (subset(sb212, 업종 == '제조업'& 일생활균형 == 1)) 
+      
+    }else if(input$업종=="제조업"&input$BEST=="고용안정"){
+      (subset(sb212, 업종 == '제조업'& 고용안정 == 1)) 
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&일생활균형"){
+      (subset(sb212, 업종 == '제조업'& 임금 == 1 & 일생활균형==1)) 
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&고용안정"){
+      (subset(sb212, 업종 == '제조업'& 임금 == 1 & 고용안정==1))    
+      
+    }else if(input$업종=="제조업"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb212, 업종 == '제조업'& 일생활균형 == 1 & 고용안정==1)) 
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb212, 업종 == '제조업'& 비고==3))   
+      
+    }else if(input$업종=="제조업"&input$BEST=="전체"){
+      (subset(sb212, 업종 == '제조업'))  
+      
+      
+      #기타    
+    }else if(input$업종=="기타"&input$BEST=="임금"){
+      (subset(sb212, 업종 == '기타'& 임금 == 1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="일생활균형"){
+      (subset(sb212, 업종 == '기타'& 임금 == 1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="고용안정"){
+      (subset(sb212, 업종 == '기타'& 임금 == 1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&일생활균형"){
+      (subset(sb212, 업종 == '기타'& 임금 == 1 & 일생활균형==1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&고용안정"){
+      (subset(sb212, 업종 == '기타'& 임금 == 1 & 고용안정==1))    
+      
+    }else if(input$업종=="기타"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb212, 업종 == '기타'& 일생활균형 == 1 & 고용안정==1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb212, 업종 == '기타'& 비고==3))
+      
+    }else if(input$업종=="기타"&input$BEST=="전체"){
+      (subset(sb212, 업종 == '기타')) 
+      
+    }else if(input$업종=="전체"&input$BEST=="전체"){
+      (sb212)}
+    
+    
+  })
+  
+  output$list22 <- renderTable({
+    
+    
+    #정보통신업
+    if(input$업종=="정보통신업"&input$BEST=="임금"){
+      (subset(sb222, 업종 == '정보통신업'& 임금 == 1 ))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="일생활균형"){
+      (subset(sb222, 업종 == '정보통신업'& 일생활균형 == 1))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="고용안정"){
+      (subset(sb222, 업종 == '정보통신업'& 고용안정 == 1))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&일생활균형"){
+      (subset(sb222, 업종 == '정보통신업'& 임금 == 1 & 일생활균형==1)) 
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&고용안정"){
+      (subset(sb222, 업종 == '정보통신업'& 임금 == 1 & 고용안정==1))   
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb222, 업종 == '정보통신업'& 일생활균형 == 1 & 고용안정==1)) 
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb222, 업종 == '정보통신업'& 비고==3)) 
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="전체"){
+      (subset(sb222, 업종 == '정보통신업'))  
+      
+      
+      #도매 및 소매업
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금"){
+      (subset(sb222, 업종 == '도매 및 소매업'& 임금 == 1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="일생활균형"){
+      (subset(sb222, 업종 == '도매 및 소매업'& 일생활균형 == 1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="고용안정"){
+      (subset(sb222, 업종 == '도매 및 소매업'& 고용안정 == 1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&일생활균형"){
+      (subset(sb222, 업종 == '도매 및 소매업'& 임금 == 1 & 일생활균형==1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&고용안정"){
+      (subset(sb222, 업종 == '도매 및 소매업'& 임금 == 1 & 고용안정==1))    
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb222, 업종 == '도매 및 소매업'& 일생활균형 == 1 & 고용안정==1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb222, 업종 == '도매 및 소매업'& 비고==3)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="전체"){
+      (subset(sb222, 업종 == '도매 및 소매업')) 
+      
+      
+      #전문, 과학 및 기술 서비스업 
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금"){
+      (subset(sb222, 업종 == '전문, 과학 및 기술 서비스업'& 임금 == 1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="일생활균형"){
+      (subset(sb222, 업종 == '전문, 과학 및 기술 서비스업'& 일생활균형 == 1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="고용안정"){
+      (subset(sb222, 업종 == '전문, 과학 및 기술 서비스업'& 고용안정 == 1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&일생활균형"){
+      (subset(sb222, 업종 == '전문, 과학 및 기술 서비스업'& 임금 == 1 & 일생활균형==1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&고용안정"){
+      (subset(sb222, 업종 == '전문, 과학 및 기술 서비스업'& 임금 == 1 & 고용안정==1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb222, 업종 == '전문, 과학 및 기술 서비스업'& 일생활균형 == 1 & 고용안정==1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb222, 업종 == '전문, 과학 및 기술 서비스업'& 비고==3))  
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="전체"){
+      (subset(sb222, 업종 == '전문, 과학 및 기술 서비스업'))   
+      
+      
+      #제조업   
+    }else if(input$업종=="제조업"&input$BEST=="임금"){
+      (subset(sb222, 업종 == '제조업'& 임금 == 1))
+      
+    }else if(input$업종=="제조업"&input$BEST=="일생활균형"){
+      (subset(sb222, 업종 == '제조업'& 일생활균형 == 1)) 
+      
+    }else if(input$업종=="제조업"&input$BEST=="고용안정"){
+      (subset(sb222, 업종 == '제조업'& 고용안정 == 1)) 
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&일생활균형"){
+      (subset(sb222, 업종 == '제조업'& 임금 == 1 & 일생활균형==1)) 
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&고용안정"){
+      (subset(sb222, 업종 == '제조업'& 임금 == 1 & 고용안정==1))    
+      
+    }else if(input$업종=="제조업"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb222, 업종 == '제조업'& 일생활균형 == 1 & 고용안정==1)) 
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb222, 업종 == '제조업'& 비고==3))   
+      
+    }else if(input$업종=="제조업"&input$BEST=="전체"){
+      (subset(sb222, 업종 == '제조업'))  
+      
+      
+      #기타    
+    }else if(input$업종=="기타"&input$BEST=="임금"){
+      (subset(sb222, 업종 == '기타'& 임금 == 1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="일생활균형"){
+      (subset(sb222, 업종 == '기타'& 임금 == 1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="고용안정"){
+      (subset(sb222, 업종 == '기타'& 임금 == 1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&일생활균형"){
+      (subset(sb222, 업종 == '기타'& 임금 == 1 & 일생활균형==1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&고용안정"){
+      (subset(sb222, 업종 == '기타'& 임금 == 1 & 고용안정==1))    
+      
+    }else if(input$업종=="기타"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb222, 업종 == '기타'& 일생활균형 == 1 & 고용안정==1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb222, 업종 == '기타'& 비고==3))
+      
+    }else if(input$업종=="기타"&input$BEST=="전체"){
+      (subset(sb222, 업종 == '기타')) 
+      
+    }else if(input$업종=="전체"&input$BEST=="전체"){
+      (sb222) 
+      
+      #전체
+    }else if(input$업종=="전체"&input$BEST=="임금"){
+      (subset(sb222,  임금 == 1)) 
+      
+    }else if(input$업종=="전체"&input$BEST=="일생활균형"){
+      (subset(sb222,  일생활균형 == 1)) 
+      
+    }else if(input$업종=="전체"&input$BEST=="고용안정"){
+      (subset(sb222,  고용안정 == 1)) 
+      
+    }else if(input$업종=="전체"&input$BEST=="임금&일생활균형"){
+      (subset(sb222,  임금 == 1 & 일생활균형==1)) 
+      
+    }else if(input$업종=="전체"&input$BEST=="임금&고용안정"){
+      (subset(sb222,  임금 == 1 & 고용안정==1))    
+      
+    }else if(input$업종=="전체"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb222,  일생활균형 == 1 & 고용안정==1)) 
+      
+    }else if(input$업종=="전체"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb222,  비고==3))  
+      
+      
+      
+    }
+    
+    
+  }) 
+  
+  output$list2 <- renderTable({
+    
+    
+    #정보통신업
+    if(input$업종=="정보통신업"&input$BEST=="임금"){
+      (subset(sb23, 업종22 == '정보통신업'& 임금22 == 1 & 임금21==1)) 
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="일생활균형"){
+      (subset(sb23, 업종22 == '정보통신업'& 일생활균형22 == 1 & 일생활균형21== 1))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="고용안정"){
+      (subset(sb23, 업종22 == '정보통신업'& 고용안정22 == 1 & 고용안정21== 1))
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&일생활균형"){
+      (subset(sb23, 업종22 == '정보통신업'& 임금22 == 1 & 일생활균형22==1 & 임금21 == 1 & 일생활균형21 == 1)) 
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&고용안정"){
+      (subset(sb23, 업종22 == '정보통신업'& 임금22 == 1 & 고용안정22==1 & 임금21 == 1 & 고용안정21 == 1))   
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb23, 업종22 == '정보통신업'& 일생활균형22 == 1 & 고용안정22==1 & 일생활균형21 == 1 & 고용안정21 == 1)) 
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb23, 업종22 == '정보통신업'& 랭킹 == 1)) 
+      
+    }else if(input$업종=="정보통신업"&input$BEST=="전체"){
+      (subset(sb23, 업종22 == '정보통신업'))    
+      
+      
+      #도매 및 소매업
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금"){
+      (subset(sb23, 업종22 == '도매 및 소매업'& 임금22 == 1 & 임금21==1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="일생활균형"){
+      (subset(sb23, 업종22 == '도매 및 소매업'& 일생활균형22 == 1 & 일생활균형21== 1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="고용안정"){
+      (subset(sb23, 업종22 == '도매 및 소매업'& 고용안정22 == 1 & 고용안정21== 1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&일생활균형"){
+      (subset(sb23, 업종22 == '도매 및 소매업'& 임금22 == 1 & 일생활균형22==1 & 임금21 == 1 & 일생활균형21 == 1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&고용안정"){
+      (subset(sb23, 업종22 == '도매 및 소매업'& 임금22 == 1 & 고용안정22==1 & 임금21 == 1 & 고용안정21 == 1))    
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb23, 업종22 == '도매 및 소매업'& 일생활균형22 == 1 & 고용안정22==1 & 일생활균형21 == 1 & 고용안정21 == 1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb23, 업종22 == '도매 및 소매업'& 랭킹 == 1)) 
+      
+    }else if(input$업종=="도매 및 소매업"&input$BEST=="전체"){
+      (subset(sb23, 업종22 == '도매 및 소매업'))  
+      
+      
+      #전문, 과학 및 기술 서비스업 
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금"){
+      (subset(sb23, 업종22 == '전문, 과학 및 기술 서비스업'& 임금22 == 1 & 임금21==1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="일생활균형"){
+      (subset(sb23, 업종22 == '전문, 과학 및 기술 서비스업'& 일생활균형22 == 1 & 일생활균형21== 1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="고용안정"){
+      (subset(sb23, 업종22 == '전문, 과학 및 기술 서비스업'& 고용안정22 == 1 & 고용안정21== 1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&일생활균형"){
+      (subset(sb23, 업종22 == '전문, 과학 및 기술 서비스업'& 임금22 == 1 & 일생활균형22==1 & 임금21 == 1 & 일생활균형21 == 1))
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&고용안정"){
+      (subset(sb23, 업종22 == '전문, 과학 및 기술 서비스업'& 임금22 == 1 & 고용안정22==1 & 임금21 == 1 & 고용안정21 == 1))    
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb23, 업종22 == '전문, 과학 및 기술 서비스업'& 일생활균형22 == 1 & 고용안정22==1 & 일생활균형21 == 1 & 고용안정21 == 1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb23, 업종22 == '전문, 과학 및 기술 서비스업'& 랭킹 == 1)) 
+      
+    }else if(input$업종=="전문, 과학 및 기술 서비스업"&input$BEST=="전체"){
+      (subset(sb23, 업종22 == '전문, 과학 및 기술 서비스업'))   
+      
+      
+      #제조업   
+    }else if(input$업종=="제조업"&input$BEST=="임금"){
+      (subset(sb23, 업종22 == '제조업'& 임금22 == 1 & 임금21==1)) 
+      
+    }else if(input$업종=="제조업"&input$BEST=="일생활균형"){
+      (subset(sb23, 업종22 == '제조업'& 일생활균형22 == 1 & 일생활균형21== 1)) 
+      
+    }else if(input$업종=="제조업"&input$BEST=="고용안정"){
+      (subset(sb23, 업종22 == '제조업'& 고용안정22 == 1 & 고용안정21== 1)) 
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&일생활균형"){
+      (subset(sb23, 업종22 == '제조업'& 임금22 == 1 & 일생활균형22==1 & 임금21 == 1 & 일생활균형21 == 1)) 
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&고용안정"){
+      (subset(sb23, 업종22 == '제조업'& 임금22 == 1 & 고용안정22==1 & 임금21 == 1 & 고용안정21 == 1))    
+      
+    }else if(input$업종=="제조업"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb23, 업종22 == '제조업'& 일생활균형22 == 1 & 고용안정22==1 & 일생활균형21 == 1 & 고용안정21 == 1)) 
+      
+    }else if(input$업종=="제조업"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb23, 업종22 == '제조업'& 랭킹 == 1)) 
+      
+    }else if(input$업종=="제조업"&input$BEST=="전체"){
+      (subset(sb23, 업종22 == '제조업'))   
+      
+      
+      #기타    
+    }else if(input$업종=="기타"&input$BEST=="임금"){
+      (subset(sb23, 업종22 == '기타'& 임금22 == 1 & 임금21==1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="일생활균형"){
+      (subset(sb23, 업종22 == '기타'& 일생활균형22 == 1 & 일생활균형21== 1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="고용안정"){
+      (subset(sb23, 업종22 == '기타'& 고용안정22 == 1 & 고용안정21== 1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&일생활균형"){
+      (subset(sb23, 업종22 == '기타'& 임금22 == 1 & 일생활균형22==1 & 임금21 == 1 & 일생활균형21 == 1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&고용안정"){
+      (subset(sb23, 업종22 == '기타'& 임금22 == 1 & 고용안정22==1 & 임금21 == 1 & 고용안정21 == 1))    
+      
+    }else if(input$업종=="기타"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb23, 업종22 == '기타'& 일생활균형22 == 1 & 고용안정22==1 & 일생활균형21 == 1 & 고용안정21 == 1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb23, 업종22 == '기타'& 랭킹 == 1)) 
+      
+    }else if(input$업종=="기타"&input$BEST=="전체"){
+      (subset(sb23, 업종22 == '기타'))
+      
+    }else if(input$업종=="전체"&input$BEST=="전체"){
+      (sb23)
+      
+      #전체 
+    }else if(input$업종=="전체"&input$BEST=="임금"){
+      (subset(sb23,  임금22 == 1 & 임금21==1)) 
+      
+    }else if(input$업종=="전체"&input$BEST=="일생활균형"){
+      (subset(sb23,  일생활균형22 == 1 & 일생활균형21== 1)) 
+      
+    }else if(input$업종=="전체"&input$BEST=="고용안정"){
+      (subset(sb23,  고용안정22 == 1 & 고용안정21== 1)) 
+      
+    }else if(input$업종=="전체"&input$BEST=="임금&일생활균형"){
+      (subset(sb23,  임금22 == 1 & 일생활균형22==1 & 임금21 == 1 & 일생활균형21 == 1)) 
+      
+    }else if(input$업종=="전체"&input$BEST=="임금&고용안정"){
+      (subset(sb23,  임금22 == 1 & 고용안정22==1 & 임금21 == 1 & 고용안정21 == 1))    
+      
+    }else if(input$업종=="전체"&input$BEST=="일생활균형&고용안정"){
+      (subset(sb23,  일생활균형22 == 1 & 고용안정22==1 & 일생활균형21 == 1 & 고용안정21 == 1)) 
+      
+    }else if(input$업종=="전체"&input$BEST=="임금&일생활균형&고용안정"){
+      (subset(sb23,  랭킹 == 1))
+      
+      
+    } 
+    
+    
+  })
+  
+  output$list4 <- renderTable(sb42)
+  
+  output$list5 <- renderTable(sb52)
+  
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
